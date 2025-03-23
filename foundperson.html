@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Hope - Missing Person Finder</title>
+    <link rel="stylesheet" href="styles.css">
+        
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #c8e9f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #092c2c;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .tab-button {
+            padding: 15px 30px;
+            margin: 10px;
+            border: none;
+            background: #005f73;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 250px;
+        }
+        .tab-content {
+            display: none;
+            background: #e3b9ed;
+            padding: 20px;
+            width: 50%;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        form input, form textarea, form button {
+            display: block;
+            width: 80%;
+            margin: 10px auto;
+            padding: 10px;
+            font-size: 16px;
+        }
+        form button {
+            background: #005f73;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .back-button {
+            background: #d62828;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+
+
+        .popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 320px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.popup-content {
+    position: relative;
+    padding: 20px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.close:hover {
+    color: #d62828;
+}
+
+.checkmark {
+    font-size: 40px;
+    color: #28a745;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+    animation: pop 0.3s ease-in-out;
+}
+
+h3 {
+    margin: 10px 0;
+    font-size: 22px;
+    color: #333;
+}
+
+p {
+    font-size: 16px;
+    color: #666;
+}
+
+/* Pop-up animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -55%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes pop {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo"><img src="https://pillapusha.github.io/abcde/logo1.jpg" width="100"></div>
+        <h1>FINDHOPE!</h1>
+        <b> A BEACON OF LIGHT IN THE DARKNESS,OFFERING SUPPORT AND RESOURCES TO THOSE SEARCHING FOR MISSING LOVED ONES</b>
+    </header>
+    
+    
+    <div class="container" id="buttonsContainer">
+        <button class="tab-button" onclick="showTab('upload')">Upload Missing Person</button>
+        <button class="tab-button" onclick="showTab('found')">Found Person Details</button>
+    </div>
+    
+    <div class="container">
+        <section id="upload" class="tab-content">
+            <h2>Upload Missing Person Details</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="text" name="name" placeholder="Name" required>
+                <input type="number" name="age" placeholder="Age" required>
+                <input type="text" name="location" placeholder="Last Seen Location" required>
+                <textarea name="details" placeholder="Additional Details" required></textarea>
+                <input type="file" name="image" accept="image/*" required>
+                <button type="button" onclick="submitForm()">Submit</button>
+            </form>
+            
+            <div id="successPopup" class="popup">
+                <div class="popup-content">
+                    <span class="close" onclick="closePopup()">&times;</span>
+                    <i class="checkmark">✔</i>
+                    <h3>Success!</h3>
+                    <p>Your details have been submitted successfully.</p>
+                </div>
+            </div>
+            
+        
+            <button class="back-button" onclick="location.reload()">Back</button>
+        </section>
+        
+        
+        <section id="found" class="tab-content">
+            <h2>Enter Found Person Details</h2>
+            <form id="foundPersonForm">
+                <input type="text" id="foundName" name="name" placeholder="Name (if known)">
+                <input type="number" id="foundAge" name="age" placeholder="Age">
+                <input type="text" id="foundLocation" name="location" placeholder="Found Location" required>
+                <button type="button" onclick="searchPerson()">Find</button>
+            </form>
+            
+            <div id="searchResults"></div>
+            <button class="back-button" onclick="location.reload()">Back</button>
+        </section>
+        
+
+        
+    </div>
+    
+    <script>
+
+
+function showTab(tabId) {
+            document.getElementById('buttonsContainer').style.display = 'none';
+            document.querySelectorAll('.tab-content').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(tabId).style.display = 'block';
+        }
+        
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+
+
+
+    function submitForm() {
+        let formData = new FormData(document.getElementById("uploadForm"));
+
+        fetch("submit_missing.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                document.getElementById("successPopup").style.display = "block";
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function closePopup() {
+        document.getElementById("successPopup").style.display = "none";
+    }
+
+
+    function searchPerson() {
+        let name = document.getElementById("foundName").value;
+        let age = document.getElementById("foundAge").value;
+        let location = document.getElementById("foundLocation").value;
+
+        let formData = new FormData();
+        formData.append("name", name);
+        formData.append("age", age);
+        formData.append("location", location);
+
+        fetch("founder.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            let resultDiv = document.getElementById("searchResults");
+            resultDiv.innerHTML = "";
+
+            if (data.status === "found") {
+                let person = data.person;
+                resultDiv.innerHTML = `
+                    <div class="person">
+                        <img src="${person.image}" alt="Missing Person" style="width:100px;height:100px;">
+                        <h3>${person.name}</h3>
+                        <p>Age: ${person.age}</p>
+                        <p>Location: ${person.location}</p>
+                        <p>Details: ${person.details}</p>
+                        <button onclick="showDetails('${person.name}', '${person.age}', '${person.location}', '${person.details}', '${person.image}')">Details</button>
+                    </div>
+                `;
+            } else {
+                alert("Person Not Found!");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function showDetails(name, age, location, details, image) {
+        alert(`Details:\nName: ${name}\nAge: ${age}\nLocation: ${location}\nDetails: ${details}`);
+    }
+</script>
+</body>
+</html>
